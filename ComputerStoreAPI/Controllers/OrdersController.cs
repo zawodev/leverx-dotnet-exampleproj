@@ -33,6 +33,10 @@ namespace ComputerStoreAPI.Controllers {
         /// </summary>
         [HttpPost]
         public async Task<ActionResult<Order>> Create(Order order) {
+            var custExists = await _context.Customers.AnyAsync(c => c.Id == order.CustomerId);
+            if (!custExists)
+                return NotFound($"Customer with id={order.CustomerId} not found.");
+
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetById), new { id = order.Id }, order);
