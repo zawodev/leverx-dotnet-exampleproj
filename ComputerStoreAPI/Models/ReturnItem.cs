@@ -1,16 +1,15 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace ComputerStoreAPI.Models {
-    public class OrderItem {
+    public class ReturnItem {
         // normal properties
-        public int OrderId { get; set; }
+        public int ReturnId { get; set; }
         public int ProductId { get; set; }
         public int Quantity { get; set; }
-        public decimal UnitPrice { get; set; }
 
         // navigation properties
         [JsonIgnore]
-        public Order? Order { get; set; }
+        public ReturnRequest? ReturnRequest { get; set; }
 
         [JsonIgnore]
         public Product? Product { get; set; }

@@ -13,7 +13,14 @@ namespace ComputerStoreAPI.Models {
         // navigation properties
         [JsonIgnore]
         public Category? Category { get; set; }
+
         [JsonIgnore]
         public ICollection<OrderItem>? OrderItems { get; set; }
+
+        [JsonIgnore]
+        public ICollection<CartItem>? CartItems { get; set; }
+
+        [JsonIgnore]
+        public ICollection<ProductReview>? ProductReviews { get; set; }
     }
 }

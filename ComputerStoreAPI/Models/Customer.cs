@@ -7,10 +7,19 @@ namespace ComputerStoreAPI.Models {
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
-        public string Phone { get; set; }
+        public string? Phone { get; set; }
 
         // navigation properties
         [JsonIgnore]
+        public ICollection<Address>? Addresses { get; set; }
+
+        [JsonIgnore]
         public ICollection<Order>? Orders { get; set; }
+
+        [JsonIgnore]
+        public ICollection<Cart>? Carts { get; set; }
+
+        [JsonIgnore]
+        public ICollection<ProductReview>? ProductReviews { get; set; }
     }
 }
