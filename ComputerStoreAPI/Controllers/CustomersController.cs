@@ -26,10 +26,6 @@ namespace ComputerStoreAPI.Controllers {
         /// <summary>create new customer</summary>
         [HttpPost]
         public async Task<ActionResult<Customer>> Create(Customer customer) {
-
-            if (await _context.Customers.AnyAsync(c => c.Email == customer.Email))
-                return Conflict($"Email '{customer.Email}' is already in use.");
-
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetById), new { id = customer.Id }, customer);

@@ -14,6 +14,9 @@ namespace ComputerStoreAPI.Data {
             modelBuilder.Entity<Cart>().ToTable("Cart", "core");
             modelBuilder.Entity<CartItem>().ToTable("CartItem", "core");
             modelBuilder.Entity<ProductReview>().ToTable("ProductReview", "core");
+            modelBuilder.Entity<User>().ToTable("User", "core");
+            modelBuilder.Entity<Role>().ToTable("Role", "core");
+            modelBuilder.Entity<UserRole>().ToTable("UserRole", "core");
 
             modelBuilder.Entity<Order>().ToTable("Order", "sales");
             modelBuilder.Entity<OrderItem>().ToTable("OrderItem", "sales");
@@ -24,6 +27,7 @@ namespace ComputerStoreAPI.Data {
             modelBuilder.Entity<OrderItem>().HasKey(oi => new { oi.OrderId, oi.ProductId });
             modelBuilder.Entity<ReturnItem>().HasKey(ri => new { ri.ReturnId, ri.ProductId });
             modelBuilder.Entity<CartItem>().HasKey(ci => new { ci.CartId, ci.ProductId });
+            modelBuilder.Entity<UserRole>().HasKey(ur => new { ur.UserId, ur.RoleId });
 
             // setting precision for decimal properties
             modelBuilder.Entity<Product>()
@@ -56,5 +60,8 @@ namespace ComputerStoreAPI.Data {
         public DbSet<ProductReview> ProductReviews { get; set; } = null!;
         public DbSet<ReturnRequest> ReturnRequests { get; set; } = null!;
         public DbSet<ReturnItem> ReturnItems { get; set; } = null!;
+        public DbSet<UserRole> UserRoles { get; set; } = null!;
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Role> Roles { get; set; } = null!;
     }
 }

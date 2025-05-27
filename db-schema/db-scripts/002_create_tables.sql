@@ -9,15 +9,38 @@ CREATE TABLE core.Category (
     IsActive    BIT             NOT NULL DEFAULT(1)
 );
 
+-- core.User
+CREATE TABLE core.[User] (
+    Id           INT IDENTITY(1,1) PRIMARY KEY,
+    Username     VARCHAR(100)      NOT NULL UNIQUE,
+    Email        VARCHAR(200)      NOT NULL,
+    PasswordHash VARCHAR(200)      NOT NULL
+);
+
+-- core.Role
+CREATE TABLE core.Role (
+    Id   INT IDENTITY(1,1) PRIMARY KEY,
+    Name VARCHAR(50)       NOT NULL UNIQUE
+);
+
+-- core.UserRole
+CREATE TABLE core.UserRole(
+    UserId INT NOT NULL,
+    RoleId INT NOT NULL,
+    CONSTRAINT PK_UserRole PRIMARY KEY (UserId, RoleId),
+    CONSTRAINT FK_UserRole_User FOREIGN KEY (UserId) REFERENCES core.[User](Id),
+    CONSTRAINT FK_UserRole_Role FOREIGN KEY (RoleId) REFERENCES core.Role(Id)
+);
+
 -- core.Customer
 CREATE TABLE core.Customer (
     Id           INT IDENTITY PRIMARY KEY,
     FirstName    VARCHAR(100)    NULL,
     LastName     VARCHAR(100)    NULL,
-    Email        VARCHAR(200)    NOT NULL UNIQUE,
     Phone        VARCHAR(20)     NULL,
+    UserId       INT             NOT NULL,
+    CONSTRAINT FK_Customer_User FOREIGN KEY (UserId) REFERENCES core.[User](Id)
 );
-
 
 -- core.Address
 CREATE TABLE core.Address (
