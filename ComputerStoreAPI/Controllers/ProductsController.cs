@@ -33,6 +33,10 @@ namespace ComputerStoreAPI.Controllers {
         /// </summary>
         [HttpPost]
         public async Task<ActionResult<Product>> Create(Product product) {
+            var catExists = await _context.Categories.AnyAsync(c => c.Id == product.CategoryId);
+            if (!catExists)
+                return NotFound($"Category with id={product.CategoryId} not found.");
+
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
