@@ -15,7 +15,9 @@ using MediatR;
 var builder = WebApplication.CreateBuilder(args);
 
 // MediatR
-builder.Services.AddMediatR(typeof(CreateProductCommand).Assembly);
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly())
+);
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(ProductProfile).Assembly);

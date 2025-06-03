@@ -1,5 +1,6 @@
 using ComputerStore.Application.Repositories;
 using ComputerStoreAPI.Models;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ComputerStoreAPI.Controllers {
@@ -12,6 +13,7 @@ namespace ComputerStoreAPI.Controllers {
 
         // new Dapper repo
         private readonly IProductRepository _repo;
+        // private readonly IMediator _mediator;
         public ProductsController(IProductRepository repo) => _repo = repo;
 
         /// <summary>
@@ -36,6 +38,10 @@ namespace ComputerStoreAPI.Controllers {
             // if (prod == null) return NotFound();
             // return Ok(prod);
 
+            // mediator method
+            // var prod = await _mediator.Send(new GetProductByIdQuery(id));
+            // return prod is null ? NotFound() : Ok(prod);
+
             var prod = await _repo.GetByIdAsync(id);
             if (prod is null) return NotFound();
             return Ok(prod);
@@ -55,6 +61,10 @@ namespace ComputerStoreAPI.Controllers {
             // return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
 
             // optionally validate category with repo, but for now i will skip that
+
+            // mediator method
+            // var newId = await _mediator.Send(new CreateProductCommand(product));
+            // return CreatedAtAction(nameof(GetById), new { id = newId }, product);
 
             var newId = await _repo.CreateAsync(product);
             product.Id = newId;
