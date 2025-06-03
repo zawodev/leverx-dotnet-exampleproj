@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using ComputerStoreAPI.Data;
 using System.Reflection;
+using ComputerStore.Infrastructure.Data;
+using ComputerStore.Application.Repositories;
+using ComputerStore.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,19 @@ builder.Services.AddSwaggerGen(options => {
 });
 
 builder.Services.AddDbContext<StoreContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+// Dapper context
+builder.Services.AddSingleton<IDapperContext, DapperContext>();
+
+// repozytoria
+builder.Services
+    .AddScoped<IProductRepository, ProductRepository>()
+    //.AddScoped<ICustomerRepository, CustomerRepository>()
+    // itd.
+    ;
+
+
 
 var app = builder.Build();
 
