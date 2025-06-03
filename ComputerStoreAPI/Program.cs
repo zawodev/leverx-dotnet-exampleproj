@@ -3,8 +3,30 @@ using System.Reflection;
 using ComputerStore.Infrastructure.Data;
 using ComputerStore.Application.Repositories;
 using ComputerStore.Infrastructure.Repositories;
+using ComputerStore.Application.Behaviors;
+using ComputerStore.Application.Features.Commands;
+using ComputerStore.Application.Features.Validators;
+using ComputerStore.Infrastructure.Mapping;
+
+using AutoMapper;
+using FluentValidation;
+using MediatR;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// MediatR
+builder.Services.AddMediatR(typeof(CreateProductCommand).Assembly);
+
+// AutoMapper
+builder.Services.AddAutoMapper(typeof(ProductProfile).Assembly);
+
+// FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+
+
+
 
 // Add services to the container.
 
@@ -27,7 +49,7 @@ builder.Services.AddSingleton<IDapperContext, DapperContext>();
 builder.Services
     .AddScoped<IProductRepository, ProductRepository>()
     //.AddScoped<ICustomerRepository, CustomerRepository>()
-    // itd.
+    // and so on for other repositories, which i dont have time to add
     ;
 
 
