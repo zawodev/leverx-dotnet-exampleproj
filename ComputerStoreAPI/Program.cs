@@ -1,8 +1,34 @@
 using Microsoft.EntityFrameworkCore;
-using ComputerStoreAPI.Data;
 using System.Reflection;
+using ComputerStore.Infrastructure.Data;
+using ComputerStore.Application.Repositories;
+using ComputerStore.Infrastructure.Repositories;
+using ComputerStore.Application.Behaviors;
+using ComputerStore.Application.Features.Commands;
+using ComputerStore.Application.Features.Validators;
+using ComputerStore.Infrastructure.Mapping;
+
+using AutoMapper;
+using FluentValidation;
+using MediatR;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// MediatR
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly())
+);
+
+// AutoMapper
+builder.Services.AddAutoMapper(typeof(ProductProfile).Assembly);
+
+// FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+
+
+
 
 // Add services to the container.
 
@@ -16,6 +42,19 @@ builder.Services.AddSwaggerGen(options => {
 });
 
 builder.Services.AddDbContext<StoreContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+// Dapper context
+builder.Services.AddSingleton<IDapperContext, DapperContext>();
+
+// repozytoria
+builder.Services
+    .AddScoped<IProductRepository, ProductRepository>()
+    //.AddScoped<ICustomerRepository, CustomerRepository>()
+    // and so on for other repositories, which i dont have time to add
+    ;
+
+
 
 var app = builder.Build();
 
