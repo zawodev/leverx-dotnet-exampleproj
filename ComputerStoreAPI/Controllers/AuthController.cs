@@ -20,18 +20,21 @@ namespace ComputerStoreAPI.Controllers {
         private readonly IPasswordHasher _hasher;
         private readonly ITokenService _tokenService;
         private readonly IConfiguration _config;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController( 
+        public AuthController(
             StoreContext context,
             IPasswordHasher hasher,
             ITokenService tokenService,
-            IConfiguration config) 
-            {
-                _context = context;
-                _hasher = hasher;
-                _tokenService = tokenService;
-                _config = config;
-            }
+            IConfiguration config,
+            ILogger<AuthController> logger) 
+        {
+            _context = context;
+            _hasher = hasher;
+            _tokenService = tokenService;
+            _config = config;
+            _logger = logger;
+        }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] User user) {
@@ -58,12 +61,17 @@ namespace ComputerStoreAPI.Controllers {
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] User creds) {
+
+            _logger.LogInformation("Login attempt for {Username}", creds.Username);
+
             var user = await _context.Users.Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
                 .SingleOrDefaultAsync(u => u.Username == creds.Username);
 
-            if (user == null || !_hasher.Verify(user.PasswordHash, creds.PasswordHash))
+            if (user == null || !_hasher.Verify(user.PasswordHash, creds.PasswordHash)) {
+                _logger.LogWarning("Invalid login for {Username}", creds.Username);
                 return Unauthorized("Invalid credentials.");
+            }
 
             var jwt = _tokenService.CreateAccessToken(user);
             var refresh = _tokenService.CreateRefreshToken();
@@ -74,6 +82,7 @@ namespace ComputerStoreAPI.Controllers {
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
+            _logger.LogInformation("User {UserId} logged in successfully", user.Id);
             return Ok(new { token = jwt, refreshToken = refresh });
         }
 

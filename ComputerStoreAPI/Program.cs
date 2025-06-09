@@ -21,7 +21,22 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 using Microsoft.Extensions.DependencyInjection;
 
+using Serilog;
+using Serilog.Events;
+
+var config = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json")
+    .Build();
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(config)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .CreateLogger();
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog();
 
 // health check
 builder.Services.AddHealthChecks()
@@ -44,6 +59,9 @@ builder.Services.AddAutoMapper(typeof(ProductProfile).Assembly);
 builder.Services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
+// Logging (default)
+//builder.Logging.ClearProviders();
+//builder.Logging.AddConsole();
 
 builder.Services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
 
@@ -98,6 +116,7 @@ builder.Services
 
 
 var app = builder.Build();
+Log.Information("Application starting up");
 
 app.MapHealthChecks("/health", new HealthCheckOptions {
     ResponseWriter = async (ctx, report) => {
@@ -128,4 +147,12 @@ app.UseAuthentication();
 
 app.MapControllers();
 
-app.Run();
+
+try {
+    app.Run();
+    Log.Information("Application started successfully");
+} catch (Exception ex) {
+    Log.Fatal(ex, "Application failed to start");
+} finally {
+    Log.CloseAndFlush();
+}
