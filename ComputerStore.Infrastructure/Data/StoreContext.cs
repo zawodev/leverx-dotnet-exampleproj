@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ComputerStoreAPI.Models;
 
-namespace ComputerStoreAPI.Data {
+namespace ComputerStore.Infrastructure.Data {
     public class StoreContext(DbContextOptions<StoreContext> options) : DbContext(options) {
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             // default schema is core

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ComputerStoreAPI.Data;
 using ComputerStoreAPI.Models;
+using ComputerStore.Infrastructure.Data;
 
 namespace ComputerStoreAPI.Controllers {
     [ApiController]

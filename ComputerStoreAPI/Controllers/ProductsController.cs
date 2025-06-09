@@ -1,21 +1,31 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ComputerStoreAPI.Data;
+using ComputerStore.Application.Repositories;
 using ComputerStoreAPI.Models;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ComputerStoreAPI.Controllers {
     [ApiController]
     [Route("api/products")]
     public class ProductsController : ControllerBase {
-        private readonly StoreContext _context;
-        public ProductsController(StoreContext context) => _context = context;
+        // old EF context
+        // private readonly StoreContext _context;
+        // public ProductsController(StoreContext context) => _context = context;
+
+        // new Dapper repo
+        private readonly IProductRepository _repo;
+        // private readonly IMediator _mediator;
+        public ProductsController(IProductRepository repo) => _repo = repo;
 
         /// <summary>
         /// get all products
         /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetAll() {
-            return Ok(await _context.Products.ToListAsync());
+            // old EF code:
+            // return Ok(await _context.Products.ToListAsync());
+
+            var products = await _repo.GetAllAsync();
+            return Ok(products);
         }
 
         /// <summary>
@@ -23,8 +33,17 @@ namespace ComputerStoreAPI.Controllers {
         /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetById(int id) {
-            var prod = await _context.Products.FindAsync(id);
-            if (prod == null) return NotFound();
+            // old EF code:
+            // var prod = await _context.Products.FindAsync(id);
+            // if (prod == null) return NotFound();
+            // return Ok(prod);
+
+            // mediator method
+            // var prod = await _mediator.Send(new GetProductByIdQuery(id));
+            // return prod is null ? NotFound() : Ok(prod);
+
+            var prod = await _repo.GetByIdAsync(id);
+            if (prod is null) return NotFound();
             return Ok(prod);
         }
 
@@ -33,13 +52,23 @@ namespace ComputerStoreAPI.Controllers {
         /// </summary>
         [HttpPost]
         public async Task<ActionResult<Product>> Create(Product product) {
-            var catExists = await _context.Categories.AnyAsync(c => c.Id == product.CategoryId);
-            if (!catExists)
-                return NotFound($"Category with id={product.CategoryId} not found.");
+            // old EF code:
+            // var catExists = await _context.Categories.AnyAsync(c => c.Id == product.CategoryId);
+            // if (!catExists)
+            //     return NotFound($"Category with id={product.CategoryId} not found.");
+            // _context.Products.Add(product);
+            // await _context.SaveChangesAsync();
+            // return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
 
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+            // optionally validate category with repo, but for now i will skip that
+
+            // mediator method
+            // var newId = await _mediator.Send(new CreateProductCommand(product));
+            // return CreatedAtAction(nameof(GetById), new { id = newId }, product);
+
+            var newId = await _repo.CreateAsync(product);
+            product.Id = newId;
+            return CreatedAtAction(nameof(GetById), new { id = newId }, product);
         }
 
         /// <summary>
@@ -48,8 +77,13 @@ namespace ComputerStoreAPI.Controllers {
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, Product product) {
             if (id != product.Id) return BadRequest();
-            _context.Entry(product).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+
+            // old EF code:
+            // _context.Entry(product).State = EntityState.Modified;
+            // await _context.SaveChangesAsync();
+            // return NoContent();
+
+            await _repo.UpdateAsync(product);
             return NoContent();
         }
 
@@ -58,10 +92,14 @@ namespace ComputerStoreAPI.Controllers {
         /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id) {
-            var prod = await _context.Products.FindAsync(id);
-            if (prod == null) return NotFound();
-            _context.Products.Remove(prod);
-            await _context.SaveChangesAsync();
+            // old EF code:
+            // var prod = await _context.Products.FindAsync(id);
+            // if (prod == null) return NotFound();
+            // _context.Products.Remove(prod);
+            // await _context.SaveChangesAsync();
+            // return NoContent();
+
+            await _repo.DeleteAsync(id);
             return NoContent();
         }
     }
