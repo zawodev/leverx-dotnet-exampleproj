@@ -1,9 +1,11 @@
 using ComputerStore.Application.Repositories;
 using ComputerStoreAPI.Models;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ComputerStoreAPI.Controllers {
+    [Authorize(Policy = "CanManageProducts")]
     [ApiController]
     [Route("api/products")]
     public class ProductsController : ControllerBase {
