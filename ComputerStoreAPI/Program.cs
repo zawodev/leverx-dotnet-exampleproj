@@ -16,9 +16,21 @@ using AutoMapper;
 using FluentValidation;
 using MediatR;
 using ComputerStore.Infrastructure.Services;
-using System.Text;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// health check
+builder.Services.AddHealthChecks()
+    .AddSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        name: "sql",
+        failureStatus: HealthStatus.Unhealthy,
+        tags: new[] { "db", "sql" }
+    );
 
 // MediatR
 builder.Services.AddMediatR(cfg =>
@@ -55,6 +67,10 @@ builder.Services.AddAuthentication(options => {
     };
 });
 
+builder.Services.AddAuthorization(options => {
+    options.AddPolicy("CanManageProducts", policy => policy.RequireRole("Manager", "Admin"));
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -82,6 +98,21 @@ builder.Services
 
 
 var app = builder.Build();
+
+app.MapHealthChecks("/health", new HealthCheckOptions {
+    ResponseWriter = async (ctx, report) => {
+        ctx.Response.ContentType = "application/json";
+        var result = new {
+            status = report.Status.ToString(),
+            checks = report.Entries.Select(e => new {
+                name = e.Key,
+                status = e.Value.Status.ToString(),
+                error = e.Value.Exception?.Message
+            })
+        };
+        await ctx.Response.WriteAsJsonAsync(result);
+    }
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
