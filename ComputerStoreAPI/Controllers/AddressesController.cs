@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using ComputerStoreAPI.Models;
 using System.Net;
 using ComputerStore.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ComputerStoreAPI.Controllers {
+    [Authorize]
     [ApiController]
     [Route("api/addresses")]
     public class AddressesController : ControllerBase {

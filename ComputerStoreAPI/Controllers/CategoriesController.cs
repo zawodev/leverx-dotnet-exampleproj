@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using ComputerStoreAPI.Models;
 using ComputerStore.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ComputerStoreAPI.Controllers {
+    [Authorize]
     [ApiController]
     [Route("api/categories")]
     public class CategoriesController : ControllerBase {
@@ -13,6 +15,7 @@ namespace ComputerStoreAPI.Controllers {
         /// <summary>
         /// get all categories
         /// </summary>
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetAll() {
             return Ok(await _context.Categories.ToListAsync());
@@ -21,6 +24,7 @@ namespace ComputerStoreAPI.Controllers {
         /// <summary>
         /// get category by id
         /// </summary>
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<Category>> GetById(int id) {
             var cat = await _context.Categories.FindAsync(id);
@@ -31,6 +35,7 @@ namespace ComputerStoreAPI.Controllers {
         /// <summary>
         /// create new category
         /// </summary>
+        [Authorize(Roles = "Manager,Admin")]
         [HttpPost]
         public async Task<ActionResult<Category>> Create(Category category) {
             _context.Categories.Add(category);
@@ -41,6 +46,7 @@ namespace ComputerStoreAPI.Controllers {
         /// <summary>
         /// update existing category
         /// </summary>
+        [Authorize(Roles = "Manager,Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, Category category) {
             if (id != category.Id) return BadRequest();
@@ -52,6 +58,7 @@ namespace ComputerStoreAPI.Controllers {
         /// <summary>
         /// delete category by id
         /// </summary>
+        [Authorize(Roles = "Manager,Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id) {
             var cat = await _context.Categories.FindAsync(id);

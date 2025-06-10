@@ -9,5 +9,9 @@ namespace ComputerStoreAPI.Models {
 
         [JsonIgnore] public ICollection<UserRole>? UserRoles { get; set; }
         [JsonIgnore] public Customer? Customer { get; set; }
+
+        // refresh tokens
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiry { get; set; }
     }
 }

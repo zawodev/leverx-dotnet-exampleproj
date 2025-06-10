@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using ComputerStoreAPI.Models;
 using ComputerStore.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ComputerStoreAPI.Controllers {
+    [Authorize]
     [ApiController]
     [Route("api/orders")]
     public class OrdersController : ControllerBase {
